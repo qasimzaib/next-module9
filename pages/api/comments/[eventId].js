@@ -23,20 +23,18 @@ export default function handler(req, res) {
 			name,
 			text,
 		};
-		res
-			.status(201)
-			.json({
-				success: true,
-				message: "Comment Added Successfully",
-				comment: newComment,
-			});
+		res.status(201).json({
+			success: true,
+			message: "Comment Added Successfully",
+			comment: newComment,
+		});
 	}
 
 	if (req.method === "GET") {
 		const dummyList = [
-			{id: 'c1', name: 'Name 1', text: 'First comment'},
-			{id: 'c2', name: 'Name s', text: 'Second comment'},
-		]
+			{ id: "c1", name: "Name 1", text: "First comment" },
+			{ id: "c2", name: "Name s", text: "Second comment" },
+		];
 
 		res.status(200).json({ success: true, comments: dummyList });
 	}
