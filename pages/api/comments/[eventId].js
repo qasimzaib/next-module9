@@ -1,5 +1,11 @@
-export default function handler(req, res) {
+import { MongoClient } from "mongodb";
+
+export default async function handler(req, res) {
 	const eventId = req.query.eventId;
+
+	const client = await MongoClient.connect(
+		"mongodb+srv://admin:admin@cluster0.vm0h4wd.mongodb.net/?retryWrites=true&w=majority"
+	);
 
 	if (req.method === "POST") {
 		const { email, name, text } = req.body;
@@ -18,11 +24,16 @@ export default function handler(req, res) {
 		}
 
 		const newComment = {
-			id: new Date().toISOString(),
 			email,
 			name,
 			text,
+			eventId,
 		};
+
+		const db = client.db("events");
+		const result = await db.collection("comments").insertOne(newComment);
+		newComment.id = result.insertedId;
+
 		res.status(201).json({
 			success: true,
 			message: "Comment Added Successfully",
@@ -31,11 +42,15 @@ export default function handler(req, res) {
 	}
 
 	if (req.method === "GET") {
-		const dummyList = [
-			{ id: "c1", name: "Name 1", text: "First comment" },
-			{ id: "c2", name: "Name s", text: "Second comment" },
-		];
+		const db = client.db("events");
+		const documents = await db
+			.collection("comments")
+			.find()
+			.sort({ _id: -1 })
+			.toArray();
 
-		res.status(200).json({ success: true, comments: dummyList });
+		res.status(200).json({ success: true, comments: documents });
 	}
+
+	client.close();
 }
